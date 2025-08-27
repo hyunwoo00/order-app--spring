@@ -12,6 +12,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -27,25 +29,22 @@ public class UserController {
 
 
 
-    @GetMapping("{id}")
-    public UserResponse user(@PathVariable("id") Long userId){
-        User user =userRepository.findById(userId)
-                .orElseThrow(() -> new NonExistentUserException("존재하지 않는 회원입니다."));
-
+    @GetMapping("")
+    public UserResponse user(@AuthenticationPrincipal User user){
         return new UserResponse(user);
     }
 
-    @PutMapping("{id}")
-    public ResponseEntity<?> updateUser(@PathVariable Long id, @RequestBody @Valid UpdateUserRequest request) {
+    @PutMapping("")
+    public ResponseEntity<?> updateUser(@AuthenticationPrincipal User user, @RequestBody @Valid UpdateUserRequest request) {
 
-        userService.update(id, request.getName(), request.getPhoneNumber(), request.getAddress());
+        userService.update(user.getId(), request.getName(), request.getPhoneNumber(), request.getAddress());
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @DeleteMapping("{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable("id") Long id) {
-        userService.withdrawMember(id);
+    public ResponseEntity<?> deleteUser(@AuthenticationPrincipal User user) {
+        userService.withdrawMember(user.getId());
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
