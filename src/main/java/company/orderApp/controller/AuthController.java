@@ -75,7 +75,7 @@ public class AuthController {
         //accessToken 만료
         if(!jwtTokenProvider.validateToken(accessToken)){
             try {
-                String newAccessToken = userService.reIssueAccessToken(user.getUsername(), refreshToken);
+                String newAccessToken = userService.reIssueAccessToken(userId, refreshToken);
                 RefreshResponse refreshResponse = new RefreshResponse();
                 refreshResponse.setAccessToken(newAccessToken);
 
