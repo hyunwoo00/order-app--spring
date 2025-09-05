@@ -21,6 +21,7 @@ import company.orderApp.service.OrderService;
 import company.orderApp.service.exception.NonExistentCartException;
 import company.orderApp.service.exception.NonExistentItemException;
 import company.orderApp.service.exception.NonExistentUserException;
+import company.orderApp.controller.util.ReceiptFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -28,7 +29,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
 
 @RestController
 @Slf4j
@@ -76,14 +76,7 @@ public class OrderController {
         Address address = new Address(orderRequest.getStoreName(), orderRequest.getRoadAddress(), orderRequest.getZoneCode(), orderRequest.getDetail());
         Delivery delivery = Delivery.createDelivery(address);
 
-        Receipt receipt;
-
-        if(Objects.equals(orderRequest.getReceipt(), "cash_receipt")){
-            receipt = Receipt.CASH_RECEIPT;
-        }
-        else{
-            receipt = Receipt.TAX_INVOICE;
-        }
+        Receipt receipt = ReceiptFactory.issueReceipt(orderRequest.getReceipt());
 
         orderService.orderByCart(userId, cart.getId(), delivery, orderRequest.getPhoneNumber(), receipt, orderRequest.getRequest());
 
@@ -104,14 +97,8 @@ public class OrderController {
         Address address = new Address(orderRequest.getStoreName(), orderRequest.getRoadAddress(), orderRequest.getZoneCode(), orderRequest.getDetail());
         Delivery delivery = Delivery.createDelivery(address);
 
-        Receipt receipt;
+        Receipt receipt = ReceiptFactory.issueReceipt(orderRequest.getReceipt());
 
-        if(Objects.equals(orderRequest.getReceipt(), "cash_receipt")){
-            receipt = Receipt.CASH_RECEIPT;
-        }
-        else{
-            receipt = Receipt.TAX_INVOICE;
-        }
 
 
         OrderItem orderItem = OrderItem.createOrderItem(item, item.getPrice(), quantity, discountPolicy.discount(quantity, item.getMinimumQuantityForDiscount()));
