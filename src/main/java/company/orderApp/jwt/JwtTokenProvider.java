@@ -1,15 +1,18 @@
 package company.orderApp.jwt;
 
+import company.orderApp.domain.User;
+import company.orderApp.repository.UserRepository;
+import company.orderApp.service.exception.NonExistentUserException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
@@ -25,13 +28,15 @@ import java.util.stream.Collectors;
 public class JwtTokenProvider {
 
     private final Key key;
+    private final UserRepository userRepository;
 
-    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey) {
+    public JwtTokenProvider(@Value("${jwt.secret}") String secretKey, UserRepository userRepository) {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         this.key = Keys.hmacShaKeyFor(keyBytes);
+        this.userRepository = userRepository;
     }
 
-    public JwtToken generateToken(Authentication authentication) {
+    public JwtToken generateToken(Long id, Authentication authentication) {
         String authorities = authentication.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(","));
@@ -42,7 +47,7 @@ public class JwtTokenProvider {
         //Access Token 생성
         Date accessTokenExpire = new Date(now + 86400000 / 12); //2시간
         String accessToken = Jwts.builder()
-                .setSubject(authentication.getName())
+                .setSubject(String.valueOf(id))
                 .claim("auth", authorities)
                 .setExpiration(accessTokenExpire)
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -64,7 +69,7 @@ public class JwtTokenProvider {
                 .build();
     }
 
-    public String generateAccessToken(String username, String authorities) {
+    public String generateAccessToken(Long id, String authorities) {
 
 
         long now = (new Date()).getTime();
@@ -72,7 +77,7 @@ public class JwtTokenProvider {
         //Access Token 생성
         Date accessTokenExpire = new Date(now + 86400000 / 12);
         return Jwts.builder()
-                .setSubject(username)
+                .setSubject(String.valueOf(id))
                 .claim("auth", authorities)
                 .setExpiration(accessTokenExpire)
                 .signWith(key, SignatureAlgorithm.HS256)
@@ -86,13 +91,17 @@ public class JwtTokenProvider {
         if (claims.get("auth") == null) {
             throw new RuntimeException("권한 정보가 없는 토큰입니다.");
         }
+        String strId = getUserId(accessToken);
+        Long id = Long.parseLong(strId);
+
+        User user =userRepository.findById(id)
+                .orElseThrow(() -> new NonExistentUserException("존재하지 않는 회원입니다."));
 
         //클레임에서 권한 정보 가져오기
-        Collection<? extends GrantedAuthority> auths = Arrays.stream(claims.get("auth").toString().split(","))
+        Collection<? extends GrantedAuthority> auths = user.getRoles().stream()
                 .map(SimpleGrantedAuthority::new)
                 .toList();
-        UserDetails principal = new User(claims.getSubject(),"",auths);
-        return new UsernamePasswordAuthenticationToken(principal, "", auths);
+        return new UsernamePasswordAuthenticationToken(user, "", auths);
     }
 
     public Long getExpiration(String accessToken) {
@@ -102,7 +111,7 @@ public class JwtTokenProvider {
         return claims.getExpiration().getTime();
     }
 
-    public String getUsername(String accessToken) {
+    public String getUserId(String accessToken) {
         //Jwt 토큰 복호화
         Claims claims = parseClaims(accessToken);
 

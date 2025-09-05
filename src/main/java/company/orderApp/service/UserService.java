@@ -79,12 +79,16 @@ public class UserService {
 
         //2. 실제 검증, authentication() 메서드를 통해 요청된 User에 대한 검증 진행
         //authenticate 메서드가 실행될 때 CustomUserDetailService에서 만든 loadUserByUsername 메서드 실행
+        //일치하면 Authentication 객체 반환, 불일치하면 예외 throw
         Authentication authentication = authenticationManagerBuilder
                 .getObject()
                 .authenticate(authToken);
 
         // AccessToken, RefreshToken 생성.
-        JwtToken jwtToken = jwtTokenProvider.generateToken(authentication);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new NonExistentUserException("존재하지 않는 회원입니다"));
+
+        JwtToken jwtToken = jwtTokenProvider.generateToken(user.getId(), authentication);
 
 
         return jwtToken;
@@ -92,16 +96,16 @@ public class UserService {
 
     /**
      * AccessToken 재발급.
-     * @param username
+     * @param id
      * @return
      */
-    public String reIssueAccessToken(String username, String refreshToken){
+    public String reIssueAccessToken(Long id, String refreshToken){
 
 
         //refreshToken의 유효할 경우 accessToken 재발급
         if(jwtTokenProvider.validateToken(refreshToken)) {
 
-            User user = userRepository.findByUsername(username)
+            User user = userRepository.findById(id)
                     .orElseThrow(() -> new NonExistentUserException("존재하지 않는 회원입니다"));
 
             // AccessToken에 저장되는 Role의 형식을 맞춰주기 위함.
@@ -109,7 +113,7 @@ public class UserService {
                     .map(e -> "ROLE_" + e)
                     .collect(Collectors.joining(","));
 
-            return jwtTokenProvider.generateAccessToken(username, authorities);
+            return jwtTokenProvider.generateAccessToken(user.getId(), authorities);
 
 
         }
@@ -129,9 +133,6 @@ public class UserService {
     @Transactional
     public void signOut(String accessToken, String username) {
 
-        /*Long expiration = jwtTokenProvider.getExpiration(accessToken);
-
-        redisDao.setBlackList(accessToken, "logout", expiration);*/
     }
 
 
