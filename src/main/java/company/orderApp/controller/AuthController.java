@@ -50,18 +50,13 @@ public class AuthController {
     /**
      * 클라이언트 asyncStorage에서 token을 없애기 때문에 서버로 요청을 보내지 않아도 됨.
      */
-    @GetMapping("/logout/{id}")
-    public ResponseEntity logout(@PathVariable("id") Long userId, HttpServletRequest request) {
-        /*String accessToken = resolveToken(request);
-        User user =userRepository.findById(userId)
-                .orElseThrow(() -> new NonExistentUserException("존재하지 않는 회원입니다."));
-
-        userService.signOut(accessToken, user.getUsername());*/
+    @DeleteMapping("/logout")
+    public ResponseEntity logout() {
 
         return new ResponseEntity(HttpStatus.OK);
     }
 
-    @GetMapping("/refresh")
+    @PostMapping("/refresh")
     public ResponseEntity<?> refresh(HttpServletRequest request) {
 
         String accessToken = resolveToken(request);

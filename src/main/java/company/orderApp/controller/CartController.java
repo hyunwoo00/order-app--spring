@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
@@ -36,11 +37,8 @@ public class CartController {
     /**
      * 장바구니 조회
      */
-    @GetMapping("/users/{userId}")
-    public CartDto cart(@PathVariable("userId") Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new NonExistentUserException("존재하지 않는 회원입니다."));
-
+    @GetMapping("")
+    public CartDto cart(@AuthenticationPrincipal User user) {
         Optional<Cart> optionalCart = cartService.findCurrentCart(user);
 
         if (optionalCart.isEmpty()) {
@@ -79,9 +77,9 @@ public class CartController {
     /**
      * 장바구니 상품 삭제
      */
-    @DeleteMapping("/users/{userId}/items/{itemId}")
-    public ResponseEntity deleteItem(@PathVariable("userId") Long userId, @PathVariable("itemId") Long itemId) {
-        cartService.removeItem(userId, itemId);
+    @DeleteMapping("")
+    public ResponseEntity deleteItem(@AuthenticationPrincipal User user, @RequestBody CartRequest cartRequest) {
+        cartService.removeItem(user.getId(), cartRequest.getItemId());
 
         return new ResponseEntity(HttpStatus.OK);
     }

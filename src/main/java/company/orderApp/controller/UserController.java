@@ -42,7 +42,7 @@ public class UserController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @DeleteMapping("{id}")
+    @DeleteMapping("")
     public ResponseEntity<?> deleteUser(@AuthenticationPrincipal User user) {
         userService.withdrawMember(user.getId());
 
