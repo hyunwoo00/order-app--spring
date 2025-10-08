@@ -1,4 +1,5 @@
 <img width="640" height="424" alt="Image" src="https://github.com/user-attachments/assets/ba96a793-deaf-451b-a26d-4b73c670042d" />
+
 spring security + jwt를 이용한 인증.
 
 로그인하지 않은 사용자의 경우)
