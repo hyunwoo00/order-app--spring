@@ -1,7 +1,10 @@
+아키텍처
+-------------------------------------
+<img width="640" height="541" alt="image" src="https://github.com/user-attachments/assets/0a351ffb-2f4b-4c5f-b073-af7678e77051" />
 
 
-spring security + jwt를 이용한 인증.
----------------------------------------------------------------------------------------------------------------------
+Spring security + Jwt를 이용한 인증.
+-------------------------------------
 <img width="640" height="424" alt="Image" src="https://github.com/user-attachments/assets/ba96a793-deaf-451b-a26d-4b73c670042d" />
 
 로그인하지 않은 사용자의 경우)
@@ -34,7 +37,7 @@ SecurityContextHolder가 모든 인증/인가 판단의 기준
 다른 SecurityFilter나 커스텀 필터가 SecurityContext에서 인증 정보를 참조함
 
 API
----------------------------------------------------------------------------------------------------------------------
+-----
 <img width="1103" height="304" alt="장바구니" src="https://github.com/user-attachments/assets/37995182-e5c1-4297-848a-63355c53ff4b" />
 <img width="1096" height="248" alt="상품" src="https://github.com/user-attachments/assets/93f3f44f-b531-4988-ac6f-391ab0cc3bf2" />
 <img width="1099" height="296" alt="주문" src="https://github.com/user-attachments/assets/e24dba86-0c24-442a-b0ac-280dedb1d376" />
