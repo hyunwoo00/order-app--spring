@@ -5,8 +5,19 @@
 
 Spring security + Jwt를 이용한 인증.
 -------------------------------------
+JWT 사용 계획)
+1. AccessToken을 Authorization 헤더에 담아 요청
+
+2-1. AccessToken이 만료되지 않은 경우
+-> 요청 처리
+
+2-2. AccessToken이 만료된 경우
+-> RefreshToken을 통해 AccessToken 재발급
+
 <img width="640" height="424" alt="Image" src="https://github.com/user-attachments/assets/ba96a793-deaf-451b-a26d-4b73c670042d" />
 
+
+   
 로그인하지 않은 사용자의 경우)
 1. 클라이언트 "/auth/login" post 요청.
 2. 로그인 정보를 통해 UsernamePasswordAuthenticationToken 생성.
@@ -18,7 +29,7 @@ Spring security + Jwt를 이용한 인증.
 2. JwtAuthenticationFilter는 클라이언트가 보낸 헤더에 포함된 jwt 토큰을 꺼내 유효성 검사.
 3. SecurityContextHolder내 SecurityContext에 사용자 authentication 저장.
 
--왜 SecurityContext에 저장해야 하는가?
+왜 SecurityContext에 저장해야 하는가?)
 
 SecurityContextHolder가 모든 인증/인가 판단의 기준
 
