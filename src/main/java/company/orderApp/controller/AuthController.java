@@ -52,7 +52,7 @@ public class AuthController {
         refreshCookie.setPath("/");// 모든 경로에서 전송
         refreshCookie.setMaxAge(60 * 60 * 24 * 14);
 
-        return new LoginResponse(jwtToken.getAccessToken(),jwtToken.getRefreshToken(),userService.findByUserName(loginRequest.getUsername()));
+        return new LoginResponse(jwtToken.getAccessToken(),userService.findByUserName(loginRequest.getUsername()));
     }
 
     /**
