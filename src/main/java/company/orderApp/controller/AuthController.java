@@ -10,7 +10,9 @@ import company.orderApp.jwt.JwtTokenProvider;
 import company.orderApp.service.UserService;
 import company.orderApp.service.exception.ExpiredRefreshTokenException;
 import company.orderApp.service.exception.NonExistentUserException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,10 +41,16 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public LoginResponse login(@RequestBody @Valid LoginRequest loginRequest) {
+    public LoginResponse login(@RequestBody @Valid LoginRequest loginRequest, HttpServletResponse response) {
 
         log.info("username = " + loginRequest.getUsername() + ", password = " + loginRequest.getPassword());
         JwtToken jwtToken = userService.signIn(loginRequest.getUsername(), loginRequest.getPassword());
+
+        Cookie refreshCookie = new Cookie("refresh_token", jwtToken.getRefreshToken());
+        refreshCookie.setHttpOnly(true);
+        refreshCookie.setSecure(true);// HTTPS 환경에서만 전송
+        refreshCookie.setPath("/");// 모든 경로에서 전송
+        refreshCookie.setMaxAge(60 * 60 * 24 * 14);
 
         return new LoginResponse(jwtToken.getAccessToken(),jwtToken.getRefreshToken(),userService.findByUserName(loginRequest.getUsername()));
     }
