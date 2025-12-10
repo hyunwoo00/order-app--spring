@@ -1,6 +1,6 @@
 아키텍처
 -------------------------------------
-<img width="640" height="541" alt="image" src="https://github.com/user-attachments/assets/0a351ffb-2f4b-4c5f-b073-af7678e77051" />
+<img width="1028" height="553" alt="Image" src="https://github.com/user-attachments/assets/34217ef4-70c1-4d44-a6b3-f88ecd507dab" />
 
 
 Spring security + Jwt를 이용한 인증.
